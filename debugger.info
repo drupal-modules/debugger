@@ -1,6 +1,16 @@
 name = Drupal debugger
-description = Drupal debugger analysing the performance issues on the website
-core = 6.x
+description = Drupal debugger analysing the workflow and performance issues.
+core = 7.x
 package = Devel
-version = VERSION
-
+dependencies[] = views
+dependencies[] = views_tree
+ctools[] = context:context:3
+ctools[] = views:views_default:3.0
+features[ctools][] = views:views_default:3.0
+features[features_api][] = api:2
+features[views_view][] = Requests
+features[views_view][] = debugger_files
+features[views_view][] = debugger_functions
+features[views_view][] = debugger_sql_queries
+features[views_view][] = debugger_traces
+features_api[] = api:2

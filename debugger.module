@@ -1,18 +1,12 @@
 <?php
-
 /**
  * @file
- *   Drupal debugger analysing the performance issues on the website
- *
- * @version
- *
- * @developers
- *   Rafal Wieczorek <kenorb@gmail.com>
+ *   Drupal debugger analysing the performance issues on the website.
  */
 
 define('D_MIN_TIMER', 0.01);
 
-require_once 'debugger.api.inc'; // load API functions
+require_once 'debugger.api.inc'; // Load API functions.
 /*
  * "A tick is an event that occurs for every N low-level tickable statements executed by the parser within the declare block.
  * The value for N is specified using ticks=N within the declare blocks's directive section."
@@ -21,7 +15,7 @@ require_once 'debugger.api.inc'; // load API functions
 declare(ticks = 1);
 
 /**
- * Implementation of hook_boot().
+ * Implements of hook_boot().
  * 
  */
 function debugger_boot() {
@@ -29,7 +23,7 @@ function debugger_boot() {
     register_shutdown_function('debugger_shutdown'); // hook_exit or shutdown better?
     debugger_check_curr_path();
     // debugger_api_clear_data();
-    debugger_api_db_register_request(); // register error handler before Drupal does
+    debugger_api_db_register_request(); // Register error handler before Drupal does.
     if (variable_get('debugger_enable_sql_queries', FALSE)) {
       variable_set('dev_query', TRUE); // Enable query logging
     } else if (variable_get('dev_query', TRUE)) {
@@ -43,7 +37,7 @@ function debugger_boot() {
 }
 
 /**
- * Implementation of hook_init().
+ * Implements of hook_init().
  */
 function debugger_init() {
   if (debugger_enabled()) { // to enable it, go to: admin/settings/debugger
@@ -54,7 +48,7 @@ function debugger_init() {
 }
 
 /**
- * Implementation of hook_menu().
+ * Implements of hook_menu().
  */
 function debugger_menu() {
 /*
@@ -70,7 +64,7 @@ function debugger_menu() {
   );
 */
 
-  $items['admin/settings/debugger'] = array(
+  $items['admin/config/development/debugger'] = array(
     'title' => 'Debugger Config',
     'description' => 'Configuration of Drupal debugger.',
     'page callback' => 'drupal_get_form',
@@ -83,26 +77,30 @@ function debugger_menu() {
 }
 
 /**
- * Implementation of hook_perm().
+ * Implements of hook_permission().
  */
-function debugger_perm() {
-  return array('administer debugger');
-}
-
-/**
- * Implementation of hook_views_api().
- *
- * Note: It requires at least Views 3
- */
-function debugger_views_api() {
+function debugger_permission() {
   return array(
-    'api' => 3,
-    'path' => drupal_get_path('module', 'debugger') .'/views/includes',
+    'administer debugger' => array(
+      'title' => t('Administer Drupal debugger.'),
+      'description' => t('Perform administration tasks for Drupal debugger module.'),
+    ),
   );
 }
 
 /**
- * Implementation of hook_exit().
+ * Implements of hook_views_api().
+ *
+ */
+function debugger_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'debugger'),
+  );
+}
+
+/**
+ * Implements of hook_exit().
  */
 function debugger_exit() {
   global $debugger_exit;
@@ -110,7 +108,7 @@ function debugger_exit() {
 }
 
 /** 
- * Implementation of register_shutdown_function PHP callback
+ * Implements of register_shutdown_function PHP callback
  *
  */ 
 function debugger_shutdown() {
@@ -203,5 +201,25 @@ function debugger_tick($ticks = FALSE) {
     return array($tick_counter);
   }
   $tick_counter++; 
+}
+
+
+/**
+ * Implements hook_query_TAG_alter().
+ *
+ * Makes debugging EntityFieldQuery much easier.
+ *
+ * Example usage:
+ *   $q = new EntityFieldQuery;
+ *   $q->entityCondition('entity_type', 'node')
+ *     ->addTag('debug')
+ *     ->execute();
+ *
+ * @param QueryAlterableInterface $query
+ */
+function debugger_query_debug_alter(QueryAlterableInterface $query) {
+  if ($query->hasTag('debug')) {
+    dpq($query);
+  }
 }
 

@@ -4,10 +4,6 @@
  * @file
  *   Installation file
  *
- * @version
- *
- * @developers
- *   Rafal Wieczorek <kenorb@gmail.com>
  */
 
 /**
@@ -395,7 +391,7 @@ function debugger_test($return = FALSE) {
  * Implementation of hook_install().
  */
 function debugger_install() {
-  drupal_install_schema('debugger');
+  // drupal_install_schema('debugger');
 }
 
 /**
@@ -403,6 +399,6 @@ function debugger_install() {
  */
 function debugger_uninstall() {
   db_query("DELETE FROM {variable} WHERE name LIKE 'debugger_%%'");
-  drupal_uninstall_schema('debugger');
+  // drupal_uninstall_schema('debugger');
 }
 

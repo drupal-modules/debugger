@@ -4,10 +4,6 @@
  * @file
  *   Include file
  *
- * @version
- *
- * @developers
- *   Rafal Wieczorek <kenorb@gmail.com>
  */
 
 define('DEBUG', TRUE);
@@ -96,19 +92,18 @@ function debugger_set_time_limit($limit = 60) {
  * Get list of traced modules
  */
 function debugger_module_list() {
-  $list = array_filter(explode(',', db_result(db_query('SELECT GROUP_CONCAT(DISTINCT module) module FROM {debugger_files} ORDER BY module'))));
+  $res = db_query('SELECT GROUP_CONCAT(DISTINCT module) module FROM {debugger_files} ORDER BY module')->fetchField();
+  $list = array_filter(explode(',', $res));
   asort($list);
   return $list;
 }
 
 /**
  * Get list of rows from table
- * Note:
- *   Feature of passing arguments has been implemented in Views on December 16, 2010 (http://drupal.org/node/927270)
- *   Please upgrade to recent Views if you see some missing argument errors.
  */
 function debugger_make_list($field = 'rpath', $table_name = 'requests') {
-  $list = array_filter(explode(',', db_result(db_query("SELECT GROUP_CONCAT(DISTINCT `%s`) module FROM {debugger_%s}", $field, $table_name))));
+  $res = db_query("SELECT GROUP_CONCAT(DISTINCT `%s`) module FROM {debugger_%s}", $field, $table_name)->fetchField();
+  $list = array_filter(explode(',', $res));
   asort($list);
   return $list;
 }
@@ -117,7 +112,8 @@ function debugger_make_list($field = 'rpath', $table_name = 'requests') {
  * Get list of functions
  */
 function debugger_function_list() {
-  $list = array_filter(explode(',', db_result(db_query('SELECT GROUP_CONCAT(DISTINCT name) module FROM {debugger_functions}'))));
+  $res = db_query('SELECT GROUP_CONCAT(DISTINCT name) module FROM {debugger_functions}')->fetchField();
+  $list = array_filter(explode(',', $res));
   asort($list);
   return $list;
 }

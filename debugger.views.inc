@@ -260,7 +260,7 @@ function debugger_views_data() {
     ),
     'filter' => array(
       'help'    => t('Filter by request time'),
-      'handler' => 'views_handler_filter_float',
+      'handler' => 'views_handler_filter_numeric',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -584,7 +584,7 @@ function debugger_views_data() {
     ),
     'filter' => array(
       'help'    => t('Filter by query time'),
-      'handler' => 'views_handler_filter_float',
+      'handler' => 'views_handler_filter_numeric',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',
@@ -755,7 +755,7 @@ function debugger_views_data() {
     ),
     'filter' => array(
       'help'    => t('Filter by time of the trace'),
-      'handler' => 'views_handler_filter_float',
+      'handler' => 'views_handler_filter_numeric',
     ),
     'sort' => array(
       'handler' => 'views_handler_sort',

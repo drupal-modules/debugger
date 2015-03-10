@@ -4,10 +4,6 @@
  * @file
  *   Form with Settings
  *
- * @version
- *
- * @developers
- *   Rafal Wieczorek <kenorb@gmail.com>
  */
 
 
@@ -113,7 +109,7 @@ function debugger_db_tables($which = '*', $op = NULL) {
         $tables = db_query($query, $which);
         while ($table = db_fetch_array($tables)) {
           $tname = current($table);
-          $res[$tname] = $op ? db_result(db_query(str_replace('{}', "{{$tname}}", $op))) : $tname;
+          $res[$tname] = $op ? db_query(str_replace('{}', "{{$tname}}", $op))->fetchField() : $tname;
         }
       case 'pgsql':
       default:
