@@ -45,6 +45,13 @@ function debugger_admin_form() {
     '#default_value' => variable_get('debugger_enable_admin', FALSE),
     '#disabled' => !variable_get('debugger_enable', FALSE),
   );
+  $form['debugger']['debugger_enable_cli'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable debugger for CLI interface.'),
+    '#description' => t('Run debugger in CLI interface (such as drush).'),
+    '#default_value' => variable_get('debugger_enable_cli', FALSE),
+    '#disabled' => !variable_get('debugger_enable', FALSE),
+  );
   $form['debugger']['debugger_auto_disable'] = array(
     '#type' => 'checkbox',
     '#title' => t('Auto disable debugger on fatal errors.'),
@@ -63,7 +70,7 @@ function debugger_admin_form() {
     '#type' => 'textfield',
     '#title' => t('Precision time'),
     '#description' => t('All functions executed below that time are ignored from tracing. Be careful, it could diametrically decrease your website performance.'),
-    '#default_value' => variable_get('debugger_precision_time', 0.01),
+    '#default_value' => variable_get('debugger_precision_time', D_MIN_TIMER),
     '#size' => '8',
     '#field_suffix' => 'ms',
   );

@@ -248,6 +248,9 @@ function debugger_schema() {
         'default' => ''),
     ),
     'primary key' => array('fid'),
+    'unique keys' => array(
+      'filepath' => array('filepath'),
+    ),
   );
 
   $schema['debugger_traces'] = array(

@@ -4,35 +4,40 @@
  *   Drupal debugger analysing the performance issues on the website.
  */
 
-define('D_MIN_TIMER', 0.01);
+define('D_MIN_TIMER', 0.02);
 
 require_once 'debugger.api.inc'; // Load API functions.
+
 /*
  * "A tick is an event that occurs for every N low-level tickable statements executed by the parser within the declare block.
  * The value for N is specified using ticks=N within the declare blocks's directive section."
- * You can increase this value to increase the speed, but accordingly it's less precisely
+ * You can increase this value to increase the speed, but accordingly it's less precisely.
  */
-declare(ticks = 1);
+declare(ticks = 2);
 
 /**
  * Implements of hook_boot().
  * 
  */
 function debugger_boot() {
-  if (debugger_enabled()) { // to enable it, go to: admin/settings/debugger
-    register_shutdown_function('debugger_shutdown'); // hook_exit or shutdown better?
-    debugger_check_curr_path();
-    // debugger_api_clear_data();
-    debugger_api_db_register_request(); // Register error handler before Drupal does.
+  if (debugger_enabled()) { // To enable it, go to settings page.
+    if (drupal_is_cli() && !variable_get('debugger_enable_cli', FALSE)) {
+      return; // Disabled by default on CLI. Enable this in settings.
+    }
+
     if (variable_get('debugger_enable_sql_queries', FALSE)) {
       variable_set('dev_query', TRUE); // Enable query logging
     } else if (variable_get('dev_query', TRUE)) {
       variable_set('dev_query', FALSE);
     }
-    register_tick_function('debugger_tick'); // ACTIVATE debugger; if crashing, see: http://php.net/register_tick_function
+    // debugger_api_clear_data();
+    debugger_check_curr_path();
+    register_shutdown_function('debugger_shutdown'); // hook_exit or shutdown better?
+    debugger_api_db_register_request(); // Register error handler before Drupal does.
     /* change default PHP time limit */
     require_once 'debugger.inc'; // include additional functions
-    debugger_set_time_limit(60);
+    debugger_set_time_limit(0);
+    register_tick_function('debugger_tick'); // ACTIVATE debugger; if crashing, see: http://php.net/register_tick_function
   }
 }
 
@@ -105,6 +110,11 @@ function debugger_views_api() {
 function debugger_exit() {
   global $debugger_exit;
   $debugger_exit = TRUE; // mark the exit correctly
+
+  $fids = debugger_api_db_register_file();
+  cache_set('debugger-files', $fids); // Store files in cache.
+  $fncs = debugger_api_db_register_function();
+  cache_set('debugger-functions', $fncs); // Store functions in cache.
 }
 
 /** 
@@ -132,13 +142,13 @@ function debugger_shutdown() {
     }
   }
   if (debugger_enabled()) {
+    @unregister_tick_function('debugger_tick'); // Ignore: unregister_tick_function(): Unable to delete tick function executed at the moment. This happens on exit within tick handler.
     if (variable_get('dev_query', TRUE) && !variable_get('debugger_enable_sql_queries', FALSE)) {
       variable_set('dev_query', FALSE);
     }
     debugger_check_curr_path(); // Fix the Apache bug when current directory is changed on shutdown
     // module_load_include('inc', 'debugger'); // include additional functions
     // debugger_savetrace(); // save backtrace into db
-    unregister_tick_function('debugger_tick');
     global $queries;
     $num_sql = count($queries);
     debugger_api_db_finish_request();
@@ -192,8 +202,8 @@ function debugger_tick($ticks = FALSE) {
     $last_timer = $curr_timer;
     $last_memory = $curr_memory;
   }
-  if ($time >= (float)variable_get('debugger_precision_time', 0.01)) {
-    debugger_api_register_backtrace(debug_backtrace(), $time, $memory, $tick_counter++, 2);
+  if ($time >= (float)variable_get('debugger_precision_time', D_MIN_TIMER)) {
+    debugger_api_register_backtrace(debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2), $time, $memory, $tick_counter++, 2);
     $last_timer = $curr_timer;
     $last_memory = $curr_memory;
   }
