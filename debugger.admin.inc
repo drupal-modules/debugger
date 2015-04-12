@@ -98,7 +98,7 @@ function debugger_admin_form() {
 function debugger_clear_all_data_submit($form, &$form_state = array()) {
   debugger_api_clear_data();
   drupal_set_message(t('Debugger data has been cleared.'));
-  $form_state['redirect'] = 'admin/settings/debugger';
+  $form_state['redirect'] = 'admin/config/development/debugger';
   drupal_goto($form_state['redirect']);
 }
 

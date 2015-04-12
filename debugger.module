@@ -45,7 +45,7 @@ function debugger_boot() {
  * Implements of hook_init().
  */
 function debugger_init() {
-  if (debugger_enabled()) { // to enable it, go to: admin/settings/debugger
+  if (debugger_enabled()) { // To enable it, go to settings page.
     if (variable_get('debugger_enable_error_handler', TRUE)) {
       set_error_handler('debugger_api_drupal_error_handler'); // register error handler again
     }
